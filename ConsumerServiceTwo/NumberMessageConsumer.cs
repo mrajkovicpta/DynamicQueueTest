@@ -6,22 +6,22 @@ namespace ConsumerServiceTwo;
 
 public class NumberMessageConsumer : IConsumer<NumberMessage>
 {
-    private readonly MessageDbContext _dbContext;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public NumberMessageConsumer(MessageDbContext dbContext)
+    public NumberMessageConsumer(IServiceScopeFactory scopeFactory)
     {
-        _dbContext = dbContext;
+        _scopeFactory = scopeFactory;
     }
-
-    public NumberMessageConsumer() { }
 
     public async Task Consume(ConsumeContext<NumberMessage> context)
     {
-        _dbContext.Numbers.Add(new()
+        using var scope = _scopeFactory.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<MessageDbContext>();
+        dbContext.Numbers.Add(new()
         {
             NumberValue = context.Message.Number,
-            ServiceName = "ConsumerServiceTwo"
+            ServiceName = "ConsumerServiceOne"
         });
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
 }

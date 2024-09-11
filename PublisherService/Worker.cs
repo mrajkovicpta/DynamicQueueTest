@@ -1,3 +1,8 @@
+using System.Text;
+using System.Text.Unicode;
+using Lib.Messages;
+using MassTransit;
+
 namespace PublisherService;
 
 public class Worker : BackgroundService
@@ -16,6 +21,13 @@ public class Worker : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         while (!stoppingToken.IsCancellationRequested)
         {
+            var number = Random.Shared.Next();
+            var bytes = new byte[10];
+            Random.Shared.NextBytes(bytes);
+            var randString = Encoding.UTF8.GetString(bytes);
+            var bus = scope.ServiceProvider.GetRequiredService<IBus>();
+            await bus.Publish(new NumberMessage(number),stoppingToken);
+            await bus.Publish(new StringMessage(randString), stoppingToken);
             if (_logger.IsEnabled(LogLevel.Information))
             {
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);

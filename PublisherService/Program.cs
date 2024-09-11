@@ -20,13 +20,6 @@ builder.Services.AddMassTransit(cfg =>
             h.Username(rabbitConfig.Username);
             h.Password(rabbitConfig.Password);
         });
-
-        rabbitCfg.ReceiveEndpoint(typeof(Program).Assembly.GetName().Name!, endpoint =>
-        {
-            endpoint.AutoDelete = true;
-            endpoint.Durable = true;
-            endpoint.ConfigureConsumers(busContext);
-        });
     });
 });
 

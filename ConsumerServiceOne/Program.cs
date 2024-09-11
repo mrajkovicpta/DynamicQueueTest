@@ -1,5 +1,6 @@
 using ConsumerServiceOne;
 using Lib;
+using Lib.Messages;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,8 +29,8 @@ builder.Services.AddMassTransit(cfg =>
         {
             endpoint.AutoDelete = true;
             endpoint.Durable = true;
-            endpoint.Consumer<StringMessageConsumer>();
-            endpoint.Consumer<NumberMessageConsumer>();
+            endpoint.Consumer<StringMessageConsumer>(()=> new StringMessageConsumer(busContext.GetRequiredService<IServiceScopeFactory>()));
+            endpoint.Consumer<NumberMessageConsumer>(()=> new NumberMessageConsumer(busContext.GetRequiredService<IServiceScopeFactory>()));
         });
     });
 });

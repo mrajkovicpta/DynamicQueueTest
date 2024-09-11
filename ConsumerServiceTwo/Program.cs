@@ -27,8 +27,8 @@ builder.Services.AddMassTransit(cfg =>
         {
             endpoint.AutoDelete = true;
             endpoint.Durable = true;
-            endpoint.Consumer<StringMessageConsumer>();
-            endpoint.Consumer<NumberMessageConsumer>();
+            endpoint.Consumer<StringMessageConsumer>(()=> new StringMessageConsumer(busContext.GetRequiredService<IServiceScopeFactory>()));
+            endpoint.Consumer<NumberMessageConsumer>(()=> new NumberMessageConsumer(busContext.GetRequiredService<IServiceScopeFactory>()));
         });
     });
 });
