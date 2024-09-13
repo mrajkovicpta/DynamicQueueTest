@@ -15,6 +15,8 @@ builder.Services.AddDbContext<MessageDbContext> ((provider, optionsBuilder) =>
 
 builder.Services.AddMassTransit(cfg =>
 {
+    cfg.AddConsumer<StringMessageConsumer, StringMessageConsumerDefinition>((consumerCfg) => { });
+    cfg.AddConsumer<NumberMessageConsumer, NumberMessageConsumerDefinition>((consumerCfg) => { });
     cfg.UsingRabbitMq((busContext, rabbitCfg) =>
     {
         var configuration = busContext.GetService<IConfiguration>();
@@ -23,14 +25,7 @@ builder.Services.AddMassTransit(cfg =>
         {
             h.Username(rabbitConfig.Username);
             h.Password(rabbitConfig.Password);
-        });
-
-        rabbitCfg.ReceiveEndpoint("ConsumerServiceOne", endpoint =>
-        {
-            endpoint.AutoDelete = true;
-            endpoint.Durable = true;
-            endpoint.Consumer<StringMessageConsumer>(()=> new StringMessageConsumer(busContext.GetRequiredService<IServiceScopeFactory>()));
-            endpoint.Consumer<NumberMessageConsumer>(()=> new NumberMessageConsumer(busContext.GetRequiredService<IServiceScopeFactory>()));
+            rabbitCfg.ConfigureEndpoints(busContext);
         });
     });
 });

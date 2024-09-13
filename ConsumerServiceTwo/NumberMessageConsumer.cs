@@ -25,3 +25,32 @@ public class NumberMessageConsumer : IConsumer<NumberMessage>
         await dbContext.SaveChangesAsync();
     }
 }
+
+public class NumberMessageConsumerDefinition : ConsumerDefinition<NumberMessageConsumer>
+{
+    readonly string _topicDefiniton;
+
+    public NumberMessageConsumerDefinition(string topicDefiniton = "two.number")
+    {
+        _topicDefiniton = topicDefiniton;
+        EndpointName = "ConsumerServiceTwo";
+    }
+
+    protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator, IConsumerConfigurator<NumberMessageConsumer> consumerConfigurator, IRegistrationContext context)
+    {
+        endpointConfigurator.ConfigureConsumeTopology = false;
+        endpointConfigurator.ConcurrentMessageLimit = 1;
+        if (endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
+        {
+            rmq.BindQueue = true;
+            rmq.Consumer<NumberMessageConsumer>(() => new NumberMessageConsumer(context.GetService<IServiceScopeFactory>()));
+            rmq.Bind<NumberMessage>((bindCfg) =>
+            {
+                bindCfg.RoutingKey = _topicDefiniton;
+                bindCfg.AutoDelete = true;
+                bindCfg.Durable = true;
+                bindCfg.ExchangeType = "topic";
+            });
+        }
+    }
+}

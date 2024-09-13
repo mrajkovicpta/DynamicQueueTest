@@ -26,8 +26,14 @@ public class Worker : BackgroundService
             Random.Shared.NextBytes(bytes);
             var randString = Encoding.UTF8.GetString(bytes);
             var bus = scope.ServiceProvider.GetRequiredService<IBus>();
-            await bus.Publish(new NumberMessage(number),stoppingToken);
-            await bus.Publish(new StringMessage(randString), stoppingToken);
+            await bus.Publish(new StringMessage(randString), (ctx) =>
+            {
+                ctx.SetRoutingKey("one.string");
+            } ,stoppingToken);
+            await bus.Publish(new StringMessage(randString), (ctx) =>
+            {
+                ctx.SetRoutingKey("two.string");
+            },stoppingToken);
             if (_logger.IsEnabled(LogLevel.Information))
             {
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);

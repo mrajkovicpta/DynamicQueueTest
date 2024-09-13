@@ -1,6 +1,7 @@
 ﻿using Lib;
 using Lib.Messages;
 using MassTransit;
+using MassTransit.Transports.Fabric;
 
 namespace ConsumerServiceOne;
 
@@ -23,5 +24,35 @@ public class StringMessageConsumer : IConsumer<StringMessage>
             ServiceName = "ConsumerServiceOne"
         });
         await dbContext.SaveChangesAsync();
+    }
+
+}
+
+public class StringMessageConsumerDefinition : ConsumerDefinition<StringMessageConsumer>
+{
+    readonly string _topicDefiniton;
+
+    public StringMessageConsumerDefinition(string topicDefiniton = "one.string")
+    {
+        _topicDefiniton = topicDefiniton;
+        EndpointName = "ConsumerServiceOne";
+    }
+
+    protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator, IConsumerConfigurator<StringMessageConsumer> consumerConfigurator, IRegistrationContext context)
+    {
+        endpointConfigurator.ConfigureConsumeTopology = false;
+        endpointConfigurator.ConcurrentMessageLimit = 1;
+        if (endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
+        {
+            rmq.BindQueue = true;
+            rmq.AutoDelete = true;
+            rmq.Durable = true;
+            rmq.Consumer<StringMessageConsumer>(() => new StringMessageConsumer(context.GetService<IServiceScopeFactory>()));
+            rmq.Bind<StringMessage>((bindCfg) =>
+            {
+                bindCfg.RoutingKey = _topicDefiniton;
+                bindCfg.ExchangeType = "topic";
+            });
+        }
     }
 }

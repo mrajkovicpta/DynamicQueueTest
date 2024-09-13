@@ -25,3 +25,34 @@ public class StringMessageConsumer : IConsumer<StringMessage>
         await dbContext.SaveChangesAsync();
     }
 }
+
+public class StringMessageConsumerDefinition : ConsumerDefinition<StringMessageConsumer>
+{
+    readonly string _topicDefiniton;
+
+    public StringMessageConsumerDefinition(string topicDefiniton = "two.string")
+    {
+        _topicDefiniton = topicDefiniton;
+        EndpointName = "ConsumerServiceTwo";
+    }
+
+    protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator, IConsumerConfigurator<StringMessageConsumer> consumerConfigurator, IRegistrationContext context)
+    {
+        endpointConfigurator.ConfigureConsumeTopology = false;
+        endpointConfigurator.ConcurrentMessageLimit = 1;
+        if (endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
+        {
+            rmq.BindQueue = true;
+            rmq.AutoDelete = true;
+            rmq.Durable = true;
+            rmq.Consumer<StringMessageConsumer>(() => new StringMessageConsumer(context.GetService<IServiceScopeFactory>()));
+            rmq.Bind<StringMessage>((bindCfg) =>
+            {
+                bindCfg.RoutingKey = _topicDefiniton;
+                bindCfg.AutoDelete = true;
+                bindCfg.Durable = true;
+                bindCfg.ExchangeType = "topic";
+            });
+        }
+    }
+}

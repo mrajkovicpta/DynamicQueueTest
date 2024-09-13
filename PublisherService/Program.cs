@@ -1,5 +1,7 @@
 using Lib;
+using Lib.Messages;
 using MassTransit;
+using MassTransit.Transports.Fabric;
 using Microsoft.EntityFrameworkCore;
 using PublisherService;
 
@@ -19,6 +21,10 @@ builder.Services.AddMassTransit(cfg =>
         {
             h.Username(rabbitConfig.Username);
             h.Password(rabbitConfig.Password);
+        });
+        rabbitCfg.Publish<StringMessage>(cfg =>
+        {
+            cfg.ExchangeType = "topic";
         });
     });
 });

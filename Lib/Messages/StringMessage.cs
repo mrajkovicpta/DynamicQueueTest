@@ -1,3 +1,13 @@
 ﻿namespace Lib.Messages;
 
-public record StringMessage(string StringValue);
+public class StringMessage
+{
+    public    string StringValue {get;set;}
+
+    public StringMessage(){}
+
+    public StringMessage(string stringValue)
+    {
+        StringValue = stringValue;
+    }
+}
