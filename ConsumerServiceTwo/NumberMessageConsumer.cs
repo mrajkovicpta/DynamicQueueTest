@@ -43,12 +43,9 @@ public class NumberMessageConsumerDefinition : ConsumerDefinition<NumberMessageC
         if (endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
         {
             rmq.BindQueue = true;
-            rmq.Consumer<NumberMessageConsumer>(() => new NumberMessageConsumer(context.GetService<IServiceScopeFactory>()));
             rmq.Bind<NumberMessage>((bindCfg) =>
             {
                 bindCfg.RoutingKey = _topicDefiniton;
-                bindCfg.AutoDelete = true;
-                bindCfg.Durable = true;
                 bindCfg.ExchangeType = "topic";
             });
         }

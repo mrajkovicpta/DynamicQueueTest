@@ -45,12 +45,9 @@ public class StringMessageConsumerDefinition : ConsumerDefinition<StringMessageC
             rmq.BindQueue = true;
             rmq.AutoDelete = true;
             rmq.Durable = true;
-            rmq.Consumer<StringMessageConsumer>(() => new StringMessageConsumer(context.GetService<IServiceScopeFactory>()));
             rmq.Bind<StringMessage>((bindCfg) =>
             {
                 bindCfg.RoutingKey = _topicDefiniton;
-                bindCfg.AutoDelete = true;
-                bindCfg.Durable = true;
                 bindCfg.ExchangeType = "topic";
             });
         }
