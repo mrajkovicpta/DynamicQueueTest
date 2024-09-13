@@ -17,6 +17,8 @@ public class StringMessageConsumer : IConsumer<StringMessage>
     public async Task Consume(ConsumeContext<StringMessage> context)
     {
         using var scope = _scopeFactory.CreateScope();
+        Console.WriteLine($"{context.RoutingKey()}");
+        Console.WriteLine($"{context.MessageId}");
         var dbContext = scope.ServiceProvider.GetRequiredService<MessageDbContext>();
         dbContext.Strings.Add(new()
         {
@@ -47,7 +49,6 @@ public class StringMessageConsumerDefinition : ConsumerDefinition<StringMessageC
             rmq.BindQueue = true;
             rmq.AutoDelete = true;
             rmq.Durable = true;
-            rmq.Consumer<StringMessageConsumer>(() => new StringMessageConsumer(context.GetService<IServiceScopeFactory>()));
             rmq.Bind<StringMessage>((bindCfg) =>
             {
                 bindCfg.RoutingKey = _topicDefiniton;

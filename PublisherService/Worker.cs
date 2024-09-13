@@ -26,11 +26,11 @@ public class Worker : BackgroundService
             Random.Shared.NextBytes(bytes);
             var randString = Encoding.UTF8.GetString(bytes);
             var bus = scope.ServiceProvider.GetRequiredService<IBus>();
-            await bus.Publish(new StringMessage(randString), (ctx) =>
+            await bus.Publish(new StringMessage($"one{number}"), (ctx) =>
             {
                 ctx.SetRoutingKey("one.string");
             } ,stoppingToken);
-            await bus.Publish(new StringMessage(randString), (ctx) =>
+            await bus.Publish(new StringMessage("two"), (ctx) =>
             {
                 ctx.SetRoutingKey("two.string");
             },stoppingToken);
