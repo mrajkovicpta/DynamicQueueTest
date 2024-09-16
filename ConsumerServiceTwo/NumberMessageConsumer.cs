@@ -20,7 +20,7 @@ public class NumberMessageConsumer : IConsumer<NumberMessage>
         dbContext.Numbers.Add(new()
         {
             NumberValue = context.Message.Number,
-            ServiceName = "ConsumerServiceOne"
+            ServiceName = "ConsumerServiceTwo"
         });
         await dbContext.SaveChangesAsync();
     }
@@ -45,6 +45,8 @@ public class NumberMessageConsumerDefinition : ConsumerDefinition<NumberMessageC
             rmq.BindQueue = true;
             rmq.Bind<NumberMessage>((bindCfg) =>
             {
+                bindCfg.Durable = true;
+                bindCfg.AutoDelete = true;
                 bindCfg.RoutingKey = _topicDefiniton;
                 bindCfg.ExchangeType = "topic";
             });

@@ -22,17 +22,22 @@ public class Worker : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             var number = Random.Shared.Next();
-            var bytes = new byte[10];
-            Random.Shared.NextBytes(bytes);
-            var randString = Encoding.UTF8.GetString(bytes);
             var bus = scope.ServiceProvider.GetRequiredService<IBus>();
             await bus.Publish(new StringMessage($"one{number}"), (ctx) =>
             {
                 ctx.SetRoutingKey("one.string");
             } ,stoppingToken);
-            await bus.Publish(new StringMessage("two"), (ctx) =>
+            await bus.Publish(new StringMessage($"two{number}"), (ctx) =>
             {
                 ctx.SetRoutingKey("two.string");
+            },stoppingToken);
+            await bus.Publish(new NumberMessage(number), (ctx) =>
+            {
+                ctx.SetRoutingKey("one.number");
+            } ,stoppingToken);
+            await bus.Publish(new NumberMessage(number), (ctx) =>
+            {
+                ctx.SetRoutingKey("two.number");
             },stoppingToken);
             if (_logger.IsEnabled(LogLevel.Information))
             {

@@ -20,7 +20,7 @@ public class StringMessageConsumer : IConsumer<StringMessage>
         dbContext.Strings.Add(new()
         {
             StringValue = context.Message.StringValue,
-            ServiceName = "ConsumerServiceOne"
+            ServiceName = "ConsumerServiceTwo"
         });
         await dbContext.SaveChangesAsync();
     }
@@ -47,6 +47,8 @@ public class StringMessageConsumerDefinition : ConsumerDefinition<StringMessageC
             rmq.Durable = true;
             rmq.Bind<StringMessage>((bindCfg) =>
             {
+                bindCfg.Durable = true;
+                bindCfg.AutoDelete = true;
                 bindCfg.RoutingKey = _topicDefiniton;
                 bindCfg.ExchangeType = "topic";
             });

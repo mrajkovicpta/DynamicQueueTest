@@ -12,6 +12,7 @@ builder.Services.AddDbContext<MessageDbContext> ((provider, optionsBuilder) =>
     optionsBuilder.UseSqlite(provider.GetService<IConfiguration>().GetConnectionString("Default"));
 });
 
+
 builder.Services.AddMassTransit(cfg =>
 {
     cfg.AddConsumer<StringMessageConsumer, StringMessageConsumerDefinition>((consumerCfg) => { });
