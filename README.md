@@ -3,9 +3,9 @@
 ## When to use this
 This is best used when there are multiple services that want to read a specific message but due to the volume of messages, reading each one will throttle performance. For example, having numerous PLC readings wrapped into a single PLCReadMessage - we can seperate these reads into different comains and add routing keys to them to send them to an appropriate service.
 
-## Prerequisites for running this project:
+## Prerequisites for running this project
 
-You should have a db file for SQLite to work at ```C:\SQLite\BusTest.db``` and a docker container for rabbitmq running with the port 5672 exposed and the default user. You can also enable management by exposing the port 15672 as well and running ```rabbitmq-plugins enable rabbitmq_management``` in the shell of the docker container.
+You should have a db file for SQLite to work at ```C:\SQLite\BusTest.db``` and migrate the database using EntityFramework as well as a docker container for rabbitmq running with the port 5672 exposed and the default user. You can also enable management by exposing the port 15672 as well and running ```rabbitmq-plugins enable rabbitmq_management``` in the shell of the docker container.
 
 ## Creating a consumer
 
