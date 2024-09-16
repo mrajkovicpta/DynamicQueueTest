@@ -42,6 +42,8 @@ public class NumberMessageConsumerDefinition : ConsumerDefinition<NumberMessageC
         endpointConfigurator.ConcurrentMessageLimit = 1;
         if (endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
         {
+            rmq.AutoDelete = true;
+            rmq.Durable = true;
             rmq.BindQueue = true;
             rmq.Bind<NumberMessage>((bindCfg) =>
             {
