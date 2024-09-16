@@ -30,9 +30,17 @@ public class Worker : BackgroundService
             {
                 ctx.SetRoutingKey("one.string");
             } ,stoppingToken);
-            await bus.Publish(new StringMessage("two"), (ctx) =>
+            await bus.Publish(new StringMessage($"two{number}"), (ctx) =>
             {
                 ctx.SetRoutingKey("two.string");
+            },stoppingToken);
+            await bus.Publish(new NumberMessage(number), (ctx) =>
+            {
+                ctx.SetRoutingKey("one.number");
+            } ,stoppingToken);
+            await bus.Publish(new NumberMessage(number), (ctx) =>
+            {
+                ctx.SetRoutingKey("two.number");
             },stoppingToken);
             if (_logger.IsEnabled(LogLevel.Information))
             {

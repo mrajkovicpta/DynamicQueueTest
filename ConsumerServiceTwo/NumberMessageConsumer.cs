@@ -20,7 +20,7 @@ public class NumberMessageConsumer : IConsumer<NumberMessage>
         dbContext.Numbers.Add(new()
         {
             NumberValue = context.Message.Number,
-            ServiceName = "ConsumerServiceOne"
+            ServiceName = "ConsumerServiceTwo"
         });
         await dbContext.SaveChangesAsync();
     }

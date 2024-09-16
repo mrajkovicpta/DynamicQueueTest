@@ -20,7 +20,7 @@ public class StringMessageConsumer : IConsumer<StringMessage>
         dbContext.Strings.Add(new()
         {
             StringValue = context.Message.StringValue,
-            ServiceName = "ConsumerServiceOne"
+            ServiceName = "ConsumerServiceTwo"
         });
         await dbContext.SaveChangesAsync();
     }

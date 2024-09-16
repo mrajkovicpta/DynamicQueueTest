@@ -28,11 +28,10 @@ public class NumberMessageConsumer : IConsumer<NumberMessage>
 
 public class NumberMessageConsumerDefinition : ConsumerDefinition<NumberMessageConsumer>
 {
-    readonly string _topicDefiniton;
+    private const string _topicDefiniton = "one.number";
 
-    public NumberMessageConsumerDefinition(string topicDefiniton = "one.number")
+    public NumberMessageConsumerDefinition()
     {
-        _topicDefiniton = topicDefiniton;
         EndpointName = "ConsumerServiceOne";
     }
 

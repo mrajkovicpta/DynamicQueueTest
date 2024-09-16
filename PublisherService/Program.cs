@@ -26,6 +26,10 @@ builder.Services.AddMassTransit(cfg =>
         {
             cfg.ExchangeType = "topic";
         });
+        rabbitCfg.Publish<NumberMessage>(cfg =>
+        {
+            cfg.ExchangeType = "topic";
+        });
     });
 });
 
