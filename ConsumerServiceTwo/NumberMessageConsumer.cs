@@ -6,23 +6,21 @@ namespace ConsumerServiceTwo;
 
 public class NumberMessageConsumer : IConsumer<NumberMessage>
 {
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly MessageDbContext _dbContext;
 
-    public NumberMessageConsumer(IServiceScopeFactory scopeFactory)
+    public NumberMessageConsumer(MessageDbContext dbContext)
     {
-        _scopeFactory = scopeFactory;
+        _dbContext = dbContext;
     }
 
     public async Task Consume(ConsumeContext<NumberMessage> context)
     {
-        using var scope = _scopeFactory.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<MessageDbContext>();
-        dbContext.Numbers.Add(new()
+        _dbContext.Numbers.Add(new()
         {
             NumberValue = context.Message.Number,
             ServiceName = "ConsumerServiceTwo"
         });
-        await dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
     }
 }
 
@@ -38,15 +36,13 @@ public class NumberMessageConsumerDefinition : ConsumerDefinition<NumberMessageC
 
     protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator, IConsumerConfigurator<NumberMessageConsumer> consumerConfigurator, IRegistrationContext context)
     {
-        endpointConfigurator.ConfigureConsumeTopology = false;
         endpointConfigurator.ConcurrentMessageLimit = 1;
+        endpointConfigurator.ConfigureConsumeTopology = false;
         if (endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
         {
             rmq.BindQueue = true;
             rmq.Bind<NumberMessage>((bindCfg) =>
             {
-                bindCfg.Durable = true;
-                bindCfg.AutoDelete = true;
                 bindCfg.RoutingKey = _topicDefiniton;
                 bindCfg.ExchangeType = "topic";
             });

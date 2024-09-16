@@ -38,8 +38,8 @@ public class StringMessageConsumerDefinition : ConsumerDefinition<StringMessageC
 
     protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator, IConsumerConfigurator<StringMessageConsumer> consumerConfigurator, IRegistrationContext context)
     {
-        endpointConfigurator.ConfigureConsumeTopology = false;
         endpointConfigurator.ConcurrentMessageLimit = 1;
+        endpointConfigurator.ConfigureConsumeTopology = false;
         if (endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
         {
             rmq.BindQueue = true;
@@ -47,8 +47,6 @@ public class StringMessageConsumerDefinition : ConsumerDefinition<StringMessageC
             rmq.Durable = true;
             rmq.Bind<StringMessage>((bindCfg) =>
             {
-                bindCfg.Durable = true;
-                bindCfg.AutoDelete = true;
                 bindCfg.RoutingKey = _topicDefiniton;
                 bindCfg.ExchangeType = "topic";
             });

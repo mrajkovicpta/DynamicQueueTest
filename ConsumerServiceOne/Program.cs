@@ -12,7 +12,6 @@ builder.Services.AddDbContext<MessageDbContext> ((provider, optionsBuilder) =>
     optionsBuilder.UseSqlite(provider.GetService<IConfiguration>().GetConnectionString("Default"));
 });
 
-
 builder.Services.AddMassTransit(cfg =>
 {
     cfg.AddConsumer<StringMessageConsumer, StringMessageConsumerDefinition>((consumerCfg) => { });
@@ -25,8 +24,8 @@ builder.Services.AddMassTransit(cfg =>
         {
             h.Username(rabbitConfig.Username);
             h.Password(rabbitConfig.Password);
-            rabbitCfg.ConfigureEndpoints(busContext);
         });
+        rabbitCfg.ConfigureEndpoints(busContext);
     });
 });
 

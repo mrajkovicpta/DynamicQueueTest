@@ -22,20 +22,20 @@ public class Worker : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             var number = Random.Shared.Next();
-            var bus = scope.ServiceProvider.GetRequiredService<IBus>();
-            await bus.Publish(new StringMessage($"one{number}"), (ctx) =>
+            var endpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
+            await endpoint.Publish(new StringMessage($"one{number}"), (ctx) =>
             {
                 ctx.SetRoutingKey("one.string");
             } ,stoppingToken);
-            await bus.Publish(new StringMessage($"two{number}"), (ctx) =>
+            await endpoint.Publish(new StringMessage($"two{number}"), (ctx) =>
             {
                 ctx.SetRoutingKey("two.string");
             },stoppingToken);
-            await bus.Publish(new NumberMessage(number), (ctx) =>
+            await endpoint.Publish(new NumberMessage(number), (ctx) =>
             {
                 ctx.SetRoutingKey("one.number");
             } ,stoppingToken);
-            await bus.Publish(new NumberMessage(number), (ctx) =>
+            await endpoint.Publish(new NumberMessage(number), (ctx) =>
             {
                 ctx.SetRoutingKey("two.number");
             },stoppingToken);
