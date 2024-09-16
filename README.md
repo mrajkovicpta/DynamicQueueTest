@@ -1,0 +1,1 @@
+To reproduce the bug, run both consumer services one after the other. You will need a running rabbitmq instance running on localhost:5672 with a user guest with the password guest or change the settings in the appsettings.json
