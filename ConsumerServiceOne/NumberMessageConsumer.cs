@@ -6,23 +6,21 @@ namespace ConsumerServiceOne;
 
 public class NumberMessageConsumer : IConsumer<NumberMessage>
 {
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly MessageDbContext _dbContext;
 
-    public NumberMessageConsumer(IServiceScopeFactory scopeFactory)
+    public NumberMessageConsumer(MessageDbContext dbContext)
     {
-        _scopeFactory = scopeFactory;
+        _dbContext = dbContext;
     }
 
     public async Task Consume(ConsumeContext<NumberMessage> context)
     {
-        using var scope = _scopeFactory.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<MessageDbContext>();
-        dbContext.Numbers.Add(new()
+        _dbContext.Numbers.Add(new()
         {
             NumberValue = context.Message.Number,
             ServiceName = "ConsumerServiceOne"
         });
-        await dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
     }
 }
 
@@ -44,6 +42,8 @@ public class NumberMessageConsumerDefinition : ConsumerDefinition<NumberMessageC
             rmq.BindQueue = true;
             rmq.Bind<NumberMessage>((bindCfg) =>
             {
+                bindCfg.Durable = true;
+                bindCfg.AutoDelete = true;
                 bindCfg.RoutingKey = _topicDefiniton;
                 bindCfg.ExchangeType = "topic";
             });

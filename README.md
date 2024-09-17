@@ -13,23 +13,21 @@ A consumer is created as usual. Simply create a class that implements the interf
 ```csharp
 public class NumberMessageConsumer : IConsumer<NumberMessage>
 {
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly MessageDbContext _dbContext;
 
-    public NumberMessageConsumer(IServiceScopeFactory scopeFactory)
+    public NumberMessageConsumer(MessageDbContext _dbContext)
     {
-        _scopeFactory = scopeFactory;
+        _dbContext = dbContext;
     }
 
     public async Task Consume(ConsumeContext<NumberMessage> context)
     {
-        using var scope = _scopeFactory.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<MessageDbContext>();
-        dbContext.Numbers.Add(new()
+        _dbContext.Numbers.Add(new()
         {
             NumberValue = context.Message.Number,
             ServiceName = "ConsumerServiceOne"
         });
-        await dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
     }
 }
 ```
@@ -51,6 +49,8 @@ We should then override the ConfigureConsumer method to bind the message to the 
             rmq.Durable = true;
             rmq.Bind<StringMessage>((bindCfg) =>
             {
+                bindCfg.Durable = true;
+                bindCfg.AutoDelete = true;
                 bindCfg.RoutingKey = _topicDefiniton;
                 bindCfg.ExchangeType = "topic";
             });
@@ -74,8 +74,8 @@ builder.Services.AddMassTransit(cfg =>
         {
             h.Username(rabbitConfig.Username);
             h.Password(rabbitConfig.Password);
-            rabbitCfg.ConfigureEndpoints(busContext);
         });
+        rabbitCfg.ConfigureEndpoints(busContext);
     });
 });
 ```
@@ -97,6 +97,8 @@ builder.Services.AddMassTransit(cfg =>
         });
         rabbitCfg.Publish<StringMessage>(cfg =>
         {
+            cfg.Durable = true;
+            cfg.AutoDelete = true;
             cfg.ExchangeType = "topic";
         });
     });
@@ -104,8 +106,8 @@ builder.Services.AddMassTransit(cfg =>
 ```
 And finally we will have to add the routing key to the message when sending it:
 ```csharp
-var bus = scope.ServiceProvider.GetRequiredService<IBus>();
-await bus.Publish(new StringMessage($"example string message"), (ctx) =>
+var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
+await publishEndpoint.Publish(new StringMessage($"example string message"), (ctx) =>
 {
     ctx.SetRoutingKey("your.routing.key.here");
 } ,stoppingToken);

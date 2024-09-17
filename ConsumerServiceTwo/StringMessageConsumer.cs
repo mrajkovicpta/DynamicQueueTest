@@ -6,23 +6,21 @@ namespace ConsumerServiceTwo;
 
 public class StringMessageConsumer : IConsumer<StringMessage>
 {
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly MessageDbContext _dbContext;
 
-    public StringMessageConsumer(IServiceScopeFactory scopeFactory)
+    public StringMessageConsumer(MessageDbContext dbContext)
     {
-        _scopeFactory = scopeFactory;
+        _dbContext = dbContext;
     }
 
     public async Task Consume(ConsumeContext<StringMessage> context)
     {
-        using var scope = _scopeFactory.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<MessageDbContext>();
-        dbContext.Strings.Add(new()
+        _dbContext.Strings.Add(new()
         {
             StringValue = context.Message.StringValue,
             ServiceName = "ConsumerServiceTwo"
         });
-        await dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
     }
 }
 

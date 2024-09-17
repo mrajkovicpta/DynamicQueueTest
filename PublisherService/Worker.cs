@@ -25,20 +25,20 @@ public class Worker : BackgroundService
             var bytes = new byte[10];
             Random.Shared.NextBytes(bytes);
             var randString = Encoding.UTF8.GetString(bytes);
-            var bus = scope.ServiceProvider.GetRequiredService<IBus>();
-            await bus.Publish(new StringMessage($"one{number}"), (ctx) =>
+            var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
+            await publishEndpoint.Publish(new StringMessage($"one{number}"), (ctx) =>
             {
                 ctx.SetRoutingKey("one.string");
             } ,stoppingToken);
-            await bus.Publish(new StringMessage($"two{number}"), (ctx) =>
+            await publishEndpoint.Publish(new StringMessage($"two{number}"), (ctx) =>
             {
                 ctx.SetRoutingKey("two.string");
             },stoppingToken);
-            await bus.Publish(new NumberMessage(number), (ctx) =>
+            await publishEndpoint.Publish(new NumberMessage(number), (ctx) =>
             {
                 ctx.SetRoutingKey("one.number");
             } ,stoppingToken);
-            await bus.Publish(new NumberMessage(number), (ctx) =>
+            await publishEndpoint.Publish(new NumberMessage(number), (ctx) =>
             {
                 ctx.SetRoutingKey("two.number");
             },stoppingToken);

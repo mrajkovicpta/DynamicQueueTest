@@ -7,25 +7,22 @@ namespace ConsumerServiceOne;
 
 public class StringMessageConsumer : IConsumer<StringMessage>
 {
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly MessageDbContext _dbContext;
 
-    public StringMessageConsumer(IServiceScopeFactory scopeFactory)
+    public StringMessageConsumer(MessageDbContext dbContext)
     {
-        _scopeFactory = scopeFactory;
+
+        _dbContext = dbContext;
     }
 
     public async Task Consume(ConsumeContext<StringMessage> context)
     {
-        using var scope = _scopeFactory.CreateScope();
-        Console.WriteLine($"{context.RoutingKey()}");
-        Console.WriteLine($"{context.MessageId}");
-        var dbContext = scope.ServiceProvider.GetRequiredService<MessageDbContext>();
-        dbContext.Strings.Add(new()
+        _dbContext.Strings.Add(new()
         {
             StringValue = context.Message.StringValue,
             ServiceName = "ConsumerServiceOne"
         });
-        await dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
     }
 
 }
@@ -51,6 +48,8 @@ public class StringMessageConsumerDefinition : ConsumerDefinition<StringMessageC
             rmq.Durable = true;
             rmq.Bind<StringMessage>((bindCfg) =>
             {
+                bindCfg.AutoDelete = true;
+                bindCfg.Durable = true;
                 bindCfg.RoutingKey = _topicDefiniton;
                 bindCfg.ExchangeType = "topic";
             });

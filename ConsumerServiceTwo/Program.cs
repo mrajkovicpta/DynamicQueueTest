@@ -24,8 +24,8 @@ builder.Services.AddMassTransit(cfg =>
         {
             h.Username(rabbitConfig.Username);
             h.Password(rabbitConfig.Password);
-            rabbitCfg.ConfigureEndpoints(busContext);
         });
+        rabbitCfg.ConfigureEndpoints(busContext);
     });
 });
 
